@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Witchu!</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1c20, #2d3748);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        /* Balloon Counter HUD */
+        #counter {
+            position: fixed;
+            top: 20px;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+
+        /* Floating Balloon Styling */
+        .balloon {
+            position: absolute;
+            width: 60px;
+            height: 75px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            cursor: pointer;
+            animation: floatUp 8s linear infinite;
+            box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.3);
+            user-select: none;
+        }
+
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -12px;
+            left: 28px;
+            width: 2px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-120px) rotate(20deg);
+            }
+        }
+
+        /* Pop Animation Effect */
+        .popped {
+            animation: pop 0.2s ease-out forwards !important;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* Modal Popup Card */
+        #wish-card {
+            display: none;
+            position: relative;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            color: #2d3748;
+            padding: 40px 30px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 90%;
+            width: 450px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .title {
+            font-size: 2.2rem;
+            background: linear-gradient(45deg, #ff416c, #8a2387);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .message {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #4a5568;
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: 0.95rem;
+            padding: 15px;
+            background: #f7fafc;
+            border-left: 4px solid #ff416c;
+            border-radius: 8px;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="counter">Balloons remaining: <span id="remaining">17</span></div>
+
+    <div id="wish-card">
+        <h1 class="title">Happy Birthday, Witchu! 🎉</h1>
+        <p class="message">
+            To my absolute best friend—thank you for bringing so much color, warmth, and laughter into my life. May this year bring you all the happiness and success you deserve!
+        </p>
+        <div class="quote">
+            "A good friend knows all your best stories, but a best friend has lived them with you."
+        </div>
+    </div>
+
+    <script>
+        const totalBalloons = 17;
+        let remainingBalloons = totalBalloons;
+        
+        const colors = [
+            '#FF5733', '#33FF57', '#3357FF', '#F33FF5', 
+            '#F5F33F', '#33F5F0', '#FF8C00', '#9932CC'
+        ];
+
+        const remainingElement = document.getElementById('remaining');
+        const wishCard = document.getElementById('wish-card');
+        const counterHUD = document.getElementById('counter');
+
+        function createBalloons() {
+            for (let i = 0; i < totalBalloons; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                
+                // Randomize positions, colors, and speeds
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const leftPos = Math.random() * 85 + 5; // keep inside screen bounds
+                const animDuration = Math.random() * 4 + 6; // 6s to 10s float duration
+                const animDelay = Math.random() * 3;
+
+                balloon.style.backgroundColor = color;
+                balloon.style.left = `${leftPos}%`;
+                balloon.style.animationDuration = `${animDuration}s`;
+                balloon.style.animationDelay = `${animDelay}s`;
+
+                // Balloon Pop Click/Touch Event
+                balloon.addEventListener('click', function() {
+                    if (!balloon.classList.contains('popped')) {
+                        balloon.classList.add('popped');
+                        remainingBalloons--;
+                        remainingElement.textContent = remainingBalloons;
+
+                        setTimeout(() => {
+                            balloon.remove();
+                        }, 200);
+
+                        if (remainingBalloons === 0) {
+                            triggerWish();
+                        }
+                    }
+                });
+
+                document.body.appendChild(balloon);
+            }
+        }
+
+        function triggerWish() {
+            counterHUD.style.display = 'none';
+            wishCard.style.display = 'block';
+        }
+
+        createBalloons();
+    </script>
+</body>
+</html>
